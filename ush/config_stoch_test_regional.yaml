@@ -1,20 +1,16 @@
 user:
-  experiment_dir: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/expt_dirs/test_regional
+  experiment_dir: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/expt_dirs/test_stoch_regional
   platform: hera
 platform:
   account: fv3lam
 data:
   mesh_files: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/meshes/MPAS-Limited-Area
-forecast:
-  mpas:
-    length: 12
-    streams:
-      values:
-        output_interval: 01:00:00
 create_ics:
   mpas_init: &mpas_init_config
     boundary_conditions:
       length: 12
+    namelist:
+      base_file: "{{ user.mpas_app }}/src/MPAS-Model/namelist.init_atmosphere"
 create_lbcs:
   mpas_init:
     boundary_conditions: 
@@ -22,6 +18,11 @@ create_lbcs:
 forecast:
   mpas:
     length: 12
+    namelist:
+      base_file: "{{ user.mpas_app }}/src/MPAS-Model/namelist.atmosphere"
+      update_values:
+        nhyd_model:
+          config_dt: 60.0
     streams:
       path: "{{ user.mpas_app }}/parm/streams.atmosphere.IN"
       values:

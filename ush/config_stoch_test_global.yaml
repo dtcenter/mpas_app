@@ -1,0 +1,51 @@
+user:
+  experiment_dir: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/expt_dirs/test_stoch_global
+  platform: hera
+  mesh_label: x1.40962
+platform:
+  account: fv3lam
+data:
+  mesh_files: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/meshes/120km-global
+create_ics:
+  mpas_init: &mpas_init_config
+    boundary_conditions:
+      length: 12
+    execution:
+      batchargs:
+        cores: 128
+        walltime: 02:30:00
+      mpiargs:
+        - "--ntasks={{ create_ics.mpas_init['execution']['batchargs']['cores']}}"
+    namelist:
+      base_file: "{{ user.mpas_app }}/src/MPAS-Model/namelist.init_atmosphere"
+      update_values: &mpas_init_update_values
+        data_sources:
+          config_fg_interval: !int "{{ create_ics.mpas_init['boundary_conditions']['interval_hours'] * 3600 }}"
+        vertical_grid:
+          config_blend_bdy_terrain: false
+create_lbcs:
+  mpas_init:
+    boundary_conditions: 
+      length: 12
+forecast:
+  mpas:
+    execution:
+      batchargs:
+        cores: 128
+        walltime: 02:30:00
+    length: 12
+    namelist:
+      base_file: "{{ user.mpas_app }}/src/MPAS-Model/namelist.atmosphere"
+      update_values:
+        nhyd_model:
+          config_dt: 60.0
+        limited_area:
+          config_apply_lbcs: false
+    streams:
+      path: "{{ user.mpas_app }}/parm/streams.atmosphere.IN"
+      values:
+        output_interval: 01:00:00
+    files_to_copy:
+      stream_list.atmosphere.diagnostics: "{{ user.mpas_app }}/src/MPAS-Model/stream_list.atmosphere.diagnostics"
+      stream_list.atmosphere.output: "{{ user.mpas_app }}/src/MPAS-Model/stream_list.atmosphere.output"
+      stream_list.atmosphere.surface: "{{ user.mpas_app }}/src/MPAS-Model/stream_list.atmosphere.surface"
