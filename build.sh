@@ -81,7 +81,7 @@ usage_error () {
 LCL_PID=$$
 CONDA_BUILD_DIR="./conda"
 COMPILER=""
-BUILD_JOBS=4
+BUILD_JOBS=1
 REMOVE=false
 CONTINUE=false
 VERBOSE=false
