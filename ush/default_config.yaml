@@ -6,6 +6,8 @@ user:
   mesh_label: conus
   mpas_app: ""
   platform: big_computer
+  workflow_blocks:
+    - cold_start.yaml
 data:
   mesh_files: /path/to/nonstandard/location
 platform:
@@ -59,7 +61,7 @@ create_ics:
         - module load build_{{ user.platform }}_intel
       executable: "{{ user.mpas_app }}/exec/init_atmosphere_model"
       mpiargs:
-        - "--ntasks=4"
+        - "--ntasks={{ create_ics.mpas_init['execution']['batchargs']['cores']}}"
       mpicmd: srun
     files_to_copy: &mpas_init_files_to_copy
       "{{ user.mesh_label }}.static.nc": "{{ data.mesh_files }}/{{ user.mesh_label }}.static.nc"
