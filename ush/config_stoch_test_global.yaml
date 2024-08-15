@@ -1,11 +1,21 @@
 user:
-  experiment_dir: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/expt_dirs/test_stoch_global
+  experiment_dir: /scratch2/BMC/fv3lam/MPAS_stoch/expt_dirs/test_stoch_global
   platform: hera
   mesh_label: x1.40962
 platform:
   account: fv3lam
 data:
   mesh_files: /scratch2/BMC/fv3lam/mayfield/mpas_stoch/meshes/120km-global
+workflow:
+  tasks:
+    task_get_ics_data: !remove
+    task_get_lbcs_data: !remove
+    task_ungrib:
+      dependency: !remove
+prepare_grib:
+  ungrib:
+    gfs_files:
+      path: "/scratch2/BMC/fv3lam/MPAS_stoch/icbc_data/GFS/gfs.t{cycle_hour:02d}z.pgrb2.0p25.f{forecast_hour:03d}"
 create_ics:
   mpas_init: &mpas_init_config
     boundary_conditions:
