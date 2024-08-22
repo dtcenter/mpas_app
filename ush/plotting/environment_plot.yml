@@ -1,0 +1,14 @@
+name: mpas_plot
+channels:
+  - conda-forge
+  - anaconda
+  - ufs-community
+  - defaults
+dependencies:
+  - numpy=1.26*
+  - matplotlib
+  - netcdf4
+  - xarray
+  - cartopy
+  - uwtools=2.3*
+  - uxarray=2024.07*

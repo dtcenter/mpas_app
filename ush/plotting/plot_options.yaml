@@ -1,0 +1,58 @@
+data:
+  # Full or relative path to filename containing MPAS data you wish to plot. Can be a single file,
+  # a glob-able regex pattern match (e.g. /path/to/nc/data/*.nc), or a list of files
+  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
+
+  # Some MPAS files (usually "diag" files) do not contain grid information; in these cases you
+  # will need to specify a "gridfile" that contains the grid information for the script to read
+
+  # NOTE: Since only one gridfile can be specified, it is not possible to mix-and-match gridded
+  #       and gridless files 
+#  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
+  # Variable name to plot. Can be a list of variable names, or the string "all"
+  var:
+    - qv
+#    - rho
+#    - stoch_pattern
+#    - surface_pressure
+#    - t2m
+#    - uReconstructMeridional
+#    - uReconstructZonal
+  # Variable level to plot (for variables with multiple vertical levels). Can be a list of level numbers, or the string "all"
+  lev:
+    - 9
+plot:
+  # The filename and title of the output plot(s). You can reference the following variables in the resulting plots:
+  # {var} = Variable name
+  # {lev} = Variable level
+  # {varln} = Variable "long name" (not recommended for filenames since these often contain spaces)
+  # {units} = Variable units
+  # {filename} = Name of file being read for plotted data
+  # {fnme} = Name of file (minus extension) being read for plotted data
+  # {date} = The date of plotted data, in %Y-%m-%d format
+  # {time} = The time of plotted data, in %H:%M:%S format
+
+  filename: 'debby_ics/{var}_{lev}.png'
+  title: 'Plot of {varln}, level {lev} for experimental MPAS hurricane forecast, {date} {time}'
+  # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  latrange:
+    - 10
+    - 45
+  # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  lonrange:
+    - -110
+    - -30
+  # Colorbar settings: Will not include colorbar if this section is omitted
+  colorbar:
+    #"horizontal" or "vertical"
+    orientation: vertical
+    # Text to tabel colorbar; can use variables described at start of "plot:" section
+    label: 'Units: {units}'
+  # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+  colormap: "viridis"
+  # Image dots per inch
+  dpi: 300
+  # Image height in inches
+  figheight: 4
+  # Image width in inches
+  figwidth: 8
