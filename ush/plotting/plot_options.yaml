@@ -1,0 +1,26 @@
+data:
+  # Full or relative path to filename containing MPAS data you wish to plot
+  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
+  # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  latrange:
+    - 20
+    - 50
+  # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  lonrange:
+    - -130
+    - -60
+  var: all
+  lev: 0
+plot:
+  # The filename of the output plot(s). You can reference the following variables in the resulting plots:
+  # {var} = Variable name
+  # {lev} = Variable level
+  filename: 'debby_ics/{var}.png'
+  # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+  colormap: "rainbow"
+  # Image dots per inch
+  dpi: 300
+  # Image height in inches
+  figheight: 5
+  # Image width in inches
+  figwidth: 10

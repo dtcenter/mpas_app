@@ -3,6 +3,7 @@
 Script for plotting MPAS input and/or output in native NetCDF format"
 """
 import argparse
+import copy
 import logging
 import sys
 
@@ -11,50 +12,76 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
-from uwtools.api.config import get_yaml_config
+import uwtools.api.config as uwconfig
 
+def load_dataset(config_d: dict,log: logging.Logger) -> ux.UxDataset:
+    """
+    Program loads the dataset from the specified MPAS NetCDF file
+    and returns it as a ux.UxDataset object
+    """
 
-def plotit(config_d: dict,log: logging.Logger) -> None:
+    fn=config_d["data"]["filename"]
+    grid = ux.open_grid(fn)
+    log.debug(grid)
+
+    return ux.open_dataset(fn,fn)
+
+def plotit(config_d: dict,uxds: ux.UxDataset,log: logging.Logger) -> None:
     """
     The main program that makes the plot(s)
     """
-    print(config_d)
-    fn=config_d["files"]["filename"]
+    fn=config_d["data"]["filename"]
     grid = ux.open_grid(fn)
     log.debug(grid)
 
     uxds = ux.open_dataset(fn,fn)
 
-    for var in uxds:
-        if "n_face" not in uxds[var].dims:
-            log.info(f"Variable {var} not face-centered, skipping")
-            continue
-        log.info(f"Plotting variable {var}")
-        sliced=uxds[var]
-        if "Time" in sliced.dims:
-            log.info("Plotting first time step")
-            sliced=sliced.isel(Time=0)
-        if "nVertLevels" in sliced.dims:
-            log.info("Plotting first vertical level")
-            sliced=sliced.isel(nVertLevels=0)
+    # Each figure we will plot is a "polycollection"; we will first make a list of
+    # all the polycollections we want to plot, then plot each one in a later loop
+    pcs = []
 
-        log.debug(sliced)
-    
-        try:
-            pc = sliced.to_polycollection()
-        except:
-            log.info(f"Could not convert {var} to polycollection; there may be additional dimensions here")
-            continue
-    
+    # Make sure the variable we want is present
+    if config_d["data"]["var"]=="all":
+        newconf = copy.deepcopy(config_d)
+        for var in uxds:
+            # To plot all variables, call plotit() recursively, trapping errors
+            log.info(f"Trying to plot variable {var}")
+            newconf["data"]["var"]=[var]
+            try:
+                plotit(newconf,uxds,log)
+            except Exception as e:
+                log.warning(e)
+        
+    elif isinstance(config_d["data"]["var"], list):
+        for var in config_d["data"]["var"]:
+            if "n_face" not in uxds[var].dims:
+                log.info(f"Variable {var} not face-centered, skipping")
+                continue
+            log.info(f"Plotting variable {var}")
+            sliced=uxds[var]
+            if "Time" in sliced.dims:
+                log.info("Plotting first time step")
+                sliced=sliced.isel(Time=0)
+            if "nVertLevels" in sliced.dims:
+                log.info("Plotting first vertical level")
+                sliced=sliced.isel(nVertLevels=0)
+
+            log.debug(sliced)
+            pcs.append(sliced.to_polycollection())
+    else:
+        raise ValueError('Config value data:var must either be a list of variable names or the literal string "all"')
+ 
+    for pc in pcs:
         pc.set_antialiased(False)
     
-        pc.set_cmap("plasma")
+        pc.set_cmap(config_d["plot"]["colormap"])
     
-        fig, ax = plt.subplots(1, 1, figsize=(10, 5), constrained_layout=True)
+        fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
+                               dpi=config_d["plot"]["dpi"], constrained_layout=True)
     
 
-        ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
-        ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
+        ax.set_xlim((config_d["data"]["lonrange"][0],config_d["data"]["lonrange"][1]))
+        ax.set_ylim((config_d["data"]["latrange"][0],config_d["data"]["latrange"][1]))
     
         # add geographic features
     #    ax.add_feature(cfeature.COASTLINE)
@@ -63,7 +90,8 @@ def plotit(config_d: dict,log: logging.Logger) -> None:
         ax.add_collection(pc)
     
         plt.title(f"{var} Plot")
-        plt.savefig(f'images/MPAS_{var}.png')
+        outfile=config_d["plot"]["filename"].format(var=var,lev=0)
+        plt.savefig(outfile)
         plt.close()
 
 def setup_logging(logfile: str = "log.generate_FV3LAM_wflow", debug: bool = False) -> logging.Logger:
@@ -101,6 +129,14 @@ def setup_logging(logfile: str = "log.generate_FV3LAM_wflow", debug: bool = Fals
 
     return logger
 
+
+def setup_config(config: str,log: logging.Logger) -> dict:
+    log.debug(f"Reading options file {config}")
+    config_d = uwconfig.get_yaml_config(config=config)
+    log.debug(f"Expanding references to other variables and Jinja templates")
+    config_d.dereference()
+    return config_d
+
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
@@ -116,5 +152,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     log=setup_logging(logfile="log.plot", debug=args.debug)
-    confg_d = get_yaml_config(config=args.config)
-    plotit(confg_d,log)
+    # Load settings from config file
+    confg_d=setup_config(args.config,log)
+
+    # Open specified file and load dataset
+    dataset=load_dataset(confg_d,log)
+
+    # Make the plots!
+    plotit(confg_d,dataset,log)
