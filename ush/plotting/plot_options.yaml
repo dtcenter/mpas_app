@@ -1,21 +1,23 @@
 data:
   # Full or relative path to filename containing MPAS data you wish to plot
-  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
-  # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
-  latrange:
-    - 20
-    - 50
-  # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
-  lonrange:
-    - -130
-    - -60
+  filename: history.2023-09-15_09.00.00.nc
   var: all
   lev: 0
 plot:
-  # The filename of the output plot(s). You can reference the following variables in the resulting plots:
+  # The filename and title of the output plot(s). You can reference the following variables in the resulting plots:
   # {var} = Variable name
   # {lev} = Variable level
-  filename: 'debby_ics/{var}.png'
+  filename: 'global/{var}.png'
+  title: 'Plot of {var}, level {lev} for lowres global forecast, US domain'
+  # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  latrange:
+    - 28
+    - 48
+  # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  lonrange:
+    - -120
+    - -75
+  #Map projection for plot: Should be a cartopy-supported projection listed here:https://scitools.org.uk/cartopy/docs/v0.15/crs/projections.html
   # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
   colormap: "rainbow"
   # Image dots per inch
@@ -23,4 +25,4 @@ plot:
   # Image height in inches
   figheight: 5
   # Image width in inches
-  figwidth: 10
+  figwidth: 6
