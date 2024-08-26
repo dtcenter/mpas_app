@@ -1,32 +1,38 @@
 data:
   # Full or relative path to filename containing MPAS data you wish to plot
-  filename: history.2023-09-15_09.00.00.nc
-  var: all
+  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
+  var:
 #    - qv
 #    - rho
 #    - stoch_pattern
 #    - surface_pressure
-  lev: all
+#    - t2m
+    - uReconstructMeridional
+    - uReconstructZonal
+#  lev: all 
+#    - 0
 plot:
   # The filename and title of the output plot(s). You can reference the following variables in the resulting plots:
   # {var} = Variable name
   # {lev} = Variable level
-  filename: stoch_pattern/{var}_{lev}.png
-  title: 'Plot of {var}, level {lev} for lowres global forecast, US domain'
+  # {varln} = Variable "long name" (not recommended for filenames since these often contain spaces)
+  # {units} = Variable units
+  filename: colorbar_test/{var}_{lev}.png
+  title: 'Plot of {varln}, level {lev} for MPAS hurricane experimental forecast'
   # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
   latrange:
-    - -90
-    - 90
+    - 10
+    - 45
   # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
   lonrange:
-    - -180
-    - 180
+    - -110
+    - -30
   #Map projection for plot: Should be a cartopy-supported projection listed here:https://scitools.org.uk/cartopy/docs/v0.15/crs/projections.html
   # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
-  colormap: "rainbow"
+  colormap: "viridis"
   # Image dots per inch
   dpi: 300
   # Image height in inches
   figheight: 4
   # Image width in inches
-  figwidth: 6
+  figwidth: 8

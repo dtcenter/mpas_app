@@ -47,8 +47,8 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
                 plotit(newconf,uxds)
             except Exception as e:
                 logging.warning(f"Could not plot variable {var}")
+                logging.warning(f"{type(e).__name__}:")
                 logging.warning(e)
-        
     # To plot all levels, call plotit() recursively, trapping errors
     elif config_d["data"]["lev"]=="all":
         newconf = copy.deepcopy(config_d)
@@ -75,13 +75,18 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
             if "Time" in sliced.dims:
                 logging.info("Plotting first time step")
                 sliced=sliced.isel(Time=0)
-            if config_d["data"]["lev"]:
-                lev=config_d["data"]["lev"][0]
-                if "nVertLevels" in sliced.dims:
-                    logging.debug(f'Plotting vertical level {config_d["data"]["lev"][0]}')
-                    sliced=sliced.isel(nVertLevels=config_d["data"]["lev"][0])
-            else:
-                lev=0
+            if "nVertLevels" in sliced.dims:
+                if config_d["data"]["lev"]:
+                    lev=config_d["data"]["lev"][0]
+                else:
+                    lev=0
+                logging.debug(f'Plotting vertical level {lev}')
+                sliced=sliced.isel(nVertLevels=lev)
+
+            # Set some special variables that can be used in plot titles, etc.
+            units=uxds[var].attrs["units"]
+            varln=uxds[var].attrs["long_name"]
+
 
             logging.debug(sliced)
             pc=sliced.to_polycollection()
@@ -101,12 +106,11 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
         #    ax.add_feature(cfeature.COASTLINE)
         #    ax.add_feature(cfeature.BORDERS)
     
-            ax.add_collection(pc)
-    
+            coll = ax.add_collection(pc)    
 
-            plottitle=config_d["plot"]["title"].format(var=var,lev=lev)
+            plottitle=config_d["plot"]["title"].format(var=var,lev=lev,units=units,varln=varln)
             plt.title(plottitle)
-#            plt.colorbar(plot,orientation='horizontal')
+            plt.colorbar(coll,ax=ax,orientation='horizontal')
             outfile=config_d["plot"]["filename"].format(var=var,lev=lev)
             plt.savefig(outfile)
             plt.close()
@@ -154,7 +158,16 @@ def setup_logging(logfile: str = "log.generate_FV3LAM_wflow", debug: bool = Fals
 
 def setup_config(config: str) -> dict:
     logging.debug(f"Reading options file {config}")
-    config_d = uwconfig.get_yaml_config(config=config)
+    try:
+        config_d = uwconfig.get_yaml_config(config=config)
+    except Exception as e:
+        logging.critical(e)
+        logging.critical(f"Error reading {config}, check above error trace for details")
+        sys.exit(1)
+    if not config_d["data"].get("lev"):
+        logging.debug(f"Level not specified in config, will use level 0 if multiple found")
+        config_d["data"]["lev"]=0
+
     logging.debug(f"Expanding references to other variables and Jinja templates")
     config_d.dereference()
     return config_d
