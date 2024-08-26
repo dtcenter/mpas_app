@@ -37,11 +37,10 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
     uxds = ux.open_dataset(fn,fn)
 
 
-    # Make sure the variable we want is present
+    # To plot all variables, call plotit() recursively, trapping errors
     if config_d["data"]["var"]=="all":
         newconf = copy.deepcopy(config_d)
         for var in uxds:
-            # To plot all variables, call plotit() recursively, trapping errors
             logging.info(f"Trying to plot variable {var}")
             newconf["data"]["var"]=[var]
             try:
@@ -50,6 +49,18 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
                 logging.warning(f"Could not plot variable {var}")
                 logging.warning(e)
         
+    # To plot all levels, call plotit() recursively, trapping errors
+    if config_d["data"]["lev"]=="all":
+        newconf = copy.deepcopy(config_d)
+        for lev in range(0,len(uxds[newconf["data"]["var"]]["nVertLevels"])):
+            logging.info(f"Trying to plot level {lev} for variable {newconf['data']['var']}")
+            newconf["data"]["lev"]=[lev]
+            try:
+                plotit(newconf,uxds)
+            except Exception as e:
+                logging.warning(f"Could not plot variable {newconf['data']['var']}, level {lev}")
+                logging.warning(e)
+
     elif isinstance(config_d["data"]["var"], list):
         for var in config_d["data"]["var"]:
             if "n_face" not in uxds[var].dims:
@@ -60,9 +71,13 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
             if "Time" in sliced.dims:
                 logging.info("Plotting first time step")
                 sliced=sliced.isel(Time=0)
-            if "nVertLevels" in sliced.dims:
-                logging.info("Plotting first vertical level")
-                sliced=sliced.isel(nVertLevels=0)
+            if config_d["data"]["lev"]:
+                lev=config_d["data"]["lev"][0]
+                if "nVertLevels" in sliced.dims:
+                    logging.debug(f'Plotting vertical level {config_d["data"]["lev"][0]}')
+                    sliced=sliced.isel(nVertLevels=config_d["data"]["lev"][0])
+            else:
+                lev=0
 
             logging.debug(sliced)
             pc=sliced.to_polycollection()
@@ -84,10 +99,11 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
     
             ax.add_collection(pc)
     
-            plottitle=config_d["plot"]["title"].format(var=var,lev=0)
-            plt.title(f"{var} Plot")
+
+            plottitle=config_d["plot"]["title"].format(var=var,lev=lev)
+            plt.title(plottitle)
 #            plt.colorbar(plot,orientation='horizontal')
-            outfile=config_d["plot"]["filename"].format(var=var,lev=0)
+            outfile=config_d["plot"]["filename"].format(var=var,lev=lev)
             plt.savefig(outfile)
             plt.close()
 
