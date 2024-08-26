@@ -1,10 +1,11 @@
 data:
   # Full or relative path to filename containing MPAS data you wish to plot
   filename: history.2023-09-15_09.00.00.nc
-  var:
-    - qs
-    - rho
-    - stoch_pattern
+  var: all
+#    - qv
+#    - rho
+#    - stoch_pattern
+#    - surface_pressure
   lev: all
 plot:
   # The filename and title of the output plot(s). You can reference the following variables in the resulting plots:

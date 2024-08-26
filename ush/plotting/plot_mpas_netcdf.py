@@ -41,7 +41,7 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
     if config_d["data"]["var"]=="all":
         newconf = copy.deepcopy(config_d)
         for var in uxds:
-            logging.info(f"Trying to plot variable {var}")
+            logging.debug(f"Trying to plot variable {var}")
             newconf["data"]["var"]=[var]
             try:
                 plotit(newconf,uxds)
@@ -50,10 +50,14 @@ def plotit(config_d: dict,uxds: ux.UxDataset) -> None:
                 logging.warning(e)
         
     # To plot all levels, call plotit() recursively, trapping errors
-    if config_d["data"]["lev"]=="all":
+    elif config_d["data"]["lev"]=="all":
         newconf = copy.deepcopy(config_d)
-        for lev in range(0,len(uxds[newconf["data"]["var"]]["nVertLevels"])):
-            logging.info(f"Trying to plot level {lev} for variable {newconf['data']['var']}")
+        if "nVertLevels" in uxds[newconf["data"]["var"]].dims:
+            levs = range(0,len(uxds[newconf["data"]["var"]]["nVertLevels"]))
+        else:
+            levs = [0]
+        for lev in levs:
+            logging.debug(f"Trying to plot level {lev} for variable {newconf['data']['var']}")
             newconf["data"]["lev"]=[lev]
             try:
                 plotit(newconf,uxds)
