@@ -1,6 +1,6 @@
 data:
-  # Full or relative path to filename containing MPAS data you wish to plot
-  # Output will be placed in a subdirectory based on the filename
+  # Full or relative path to filename containing MPAS data you wish to plot. Can be a single file,
+  # a glob-able regex pattern match (e.g. /path/to/nc/data/*.nc), or a list of files
   filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
 
   # Some MPAS files (usually "diag" files) do not contain grid information; in these cases you
@@ -9,6 +9,7 @@ data:
   # NOTE: Since only one gridfile can be specified, it is not possible to mix-and-match gridded
   #       and gridless files 
 #  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
+  # Variable name to plot. Can be a list of variable names, or the string "all"
   var:
     - qv
 #    - rho
@@ -17,6 +18,7 @@ data:
 #    - t2m
 #    - uReconstructMeridional
 #    - uReconstructZonal
+  # Variable level to plot (for variables with multiple vertical levels). Can be a list of level numbers, or the string "all"
   lev:
     - 9
 plot:
@@ -40,7 +42,6 @@ plot:
   lonrange:
     - -110
     - -30
-  #Map projection for plot: Should be a cartopy-supported projection listed here:https://scitools.org.uk/cartopy/docs/v0.15/crs/projections.html
   # Colorbar settings: Will not include colorbar if this section is omitted
   colorbar:
     #"horizontal" or "vertical"
