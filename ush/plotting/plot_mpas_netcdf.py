@@ -86,7 +86,7 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
             if "nVertLevels" in sliced.dims:
                 if config_d["data"]["lev"]:
                     lev=config_d["data"]["lev"][0]
-                logging.debug(f'Plotting vertical level {lev}')
+                logging.info(f'Plotting vertical level {lev}')
                 sliced=sliced.isel(nVertLevels=lev)
 
 
@@ -121,13 +121,15 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                 "units": uxds[var].attrs["units"],
                 "varln": uxds[var].attrs["long_name"],
                 "filename": filename,
-                "fnme": fnme
+                "fnme": fnme,
+                "date": uxds[var].coords['Time'].dt.strftime('%Y-%m-%d').values[0],
+                "time": uxds[var].coords['Time'].dt.strftime('%H:%M:%S').values[0]
             }
 
             coll = ax.add_collection(pc)    
 
             plottitle=config_d["plot"]["title"].format_map(patterns)
-            plt.title(plottitle)
+            plt.title(plottitle, wrap=True)
 
             # Handle colorbar
             if config_d["plot"].get("colorbar"):

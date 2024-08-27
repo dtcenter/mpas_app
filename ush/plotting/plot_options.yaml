@@ -1,25 +1,24 @@
 data:
   # Full or relative path to filename containing MPAS data you wish to plot
   # Output will be placed in a subdirectory based on the filename
-  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/diag.*.nc
+  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
 
   # Some MPAS files (usually "diag" files) do not contain grid information; in these cases you
   # will need to specify a "gridfile" that contains the grid information for the script to read
 
   # NOTE: Since only one gridfile can be specified, it is not possible to mix-and-match gridded
   #       and gridless files 
-  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
+#  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
   var:
-#    - qv
-    - relhum_850hPa
+    - qv
 #    - rho
 #    - stoch_pattern
 #    - surface_pressure
 #    - t2m
 #    - uReconstructMeridional
 #    - uReconstructZonal
-#  lev: all 
-#    - 0
+  lev:
+    - 9
 plot:
   # The filename and title of the output plot(s). You can reference the following variables in the resulting plots:
   # {var} = Variable name
@@ -28,8 +27,11 @@ plot:
   # {units} = Variable units
   # {filename} = Name of file being read for plotted data
   # {fnme} = Name of file (minus extension) being read for plotted data
-  filename: '{fnme}/colorbar_test/{var}_{lev}.png'
-  title: 'Plot of {varln}, level {lev} for MPAS hurricane experimental forecast'
+  # {date} = The date of plotted data, in %Y-%m-%d format
+  # {time} = The time of plotted data, in %H:%M:%S format
+
+  filename: 'debby_ics/{var}_{lev}.png'
+  title: 'Plot of {varln}, level {lev} for experimental MPAS hurricane forecast, {date} {time}'
   # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
   latrange:
     - 10
@@ -42,7 +44,7 @@ plot:
   # Colorbar settings: Will not include colorbar if this section is omitted
   colorbar:
     #"horizontal" or "vertical"
-    orientation: horizontal
+    orientation: vertical
     # Text to tabel colorbar; can use variables described at start of "plot:" section
     label: 'Units: {units}'
   # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
