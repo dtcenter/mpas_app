@@ -12,8 +12,6 @@ import time
 
 import uxarray as ux
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 
 import uwtools.api.config as uwconfig
 
@@ -21,7 +19,7 @@ def load_dataset(fn: str, gf: str = "") -> ux.UxDataset:
     """
     Program loads the dataset from the specified MPAS NetCDF data file
     and grid file and returns it as a ux.UxDataset object. If grid file not specified,
-    it is assumed to be the same as the data file. 
+    it is assumed to be the same as the data file.
     """
 
     logging.info(f"Reading data from {fn}")
@@ -97,18 +95,18 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 #            logging.info(f"Timer 3 {time.time()-start}")
 
             pc.set_antialiased(False)
-    
+
             pc.set_cmap(config_d["plot"]["colormap"])
-    
+
 #            logging.info(f"Timer 4 {time.time()-start}")
             fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
                                    dpi=config_d["plot"]["dpi"], constrained_layout=True)
 #            logging.info(f"Timer 5 {time.time()-start}")
-    
-    
+
+
             ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
             ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
-    
+
             # add geographic features
         #    ax.add_feature(cfeature.COASTLINE)
         #    ax.add_feature(cfeature.BORDERS)
@@ -126,7 +124,7 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                 "time": uxds[var].coords['Time'].dt.strftime('%H:%M:%S').values[0]
             }
 
-            coll = ax.add_collection(pc)    
+            coll = ax.add_collection(pc)
 
             plottitle=config_d["plot"]["title"].format_map(patterns)
             plt.title(plottitle, wrap=True)
@@ -186,6 +184,10 @@ def setup_logging(logfile: str = "log.generate_FV3LAM_wflow", debug: bool = Fals
 
 
 def setup_config(config: str) -> dict:
+    """
+    Function for reading in dictionary of configuration settings, and performing basic checks
+    on those settings
+    """
     logging.debug(f"Reading options file {config}")
     try:
         config_d = uwconfig.get_yaml_config(config=config)
@@ -194,10 +196,10 @@ def setup_config(config: str) -> dict:
         logging.critical(f"Error reading {config}, check above error trace for details")
         sys.exit(1)
     if not config_d["data"].get("lev"):
-        logging.debug(f"Level not specified in config, will use level 0 if multiple found")
+        logging.debug("Level not specified in config, will use level 0 if multiple found")
         config_d["data"]["lev"]=0
 
-    logging.debug(f"Expanding references to other variables and Jinja templates")
+    logging.debug("Expanding references to other variables and Jinja templates")
     config_d.dereference()
     return config_d
 
