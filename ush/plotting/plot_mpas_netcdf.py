@@ -138,7 +138,8 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 
             outfile=config_d["plot"]["filename"].format_map(patterns)
             # Make sure any subdirectories exist before we try to write the file
-            os.makedirs(os.path.dirname(outfile),exist_ok=True)
+            if os.path.dirname(outfile):
+                os.makedirs(os.path.dirname(outfile),exist_ok=True)
             plt.savefig(outfile)
             plt.close()
 
@@ -183,25 +184,45 @@ def setup_logging(logfile: str = "log.generate_FV3LAM_wflow", debug: bool = Fals
     return logger
 
 
-def setup_config(config: str) -> dict:
+def setup_config(config: str, default: str="default_options.yaml") -> dict:
     """
     Function for reading in dictionary of configuration settings, and performing basic checks
     on those settings
+
+    Args:
+        config  (str) : The full path of the user config file
+        default (str) : The full path of the default config file
+        debug   (bool): Enable extra output for debugging
+    Returns:
+        dict: A dictionary of the configuration settings after applying defaults and user settings,
+              as well as some basic consistency checks
     """
-    logging.debug(f"Reading options file {config}")
+    logging.debug(f"Reading defaults file {default}")
     try:
-        config_d = uwconfig.get_yaml_config(config=config)
+        expt_config = uwconfig.get_yaml_config(config=default)
     except Exception as e:
         logging.critical(e)
         logging.critical(f"Error reading {config}, check above error trace for details")
         sys.exit(1)
-    if not config_d["data"].get("lev"):
+    logging.debug(f"Reading options file {config}")
+    try:
+        user_config = uwconfig.get_yaml_config(config=config)
+    except Exception as e:
+        logging.critical(e)
+        logging.critical(f"Error reading {config}, check above error trace for details")
+        sys.exit(1)
+
+    # Update the dict read from defaults file with the dict read from user config file
+    expt_config.update_values(user_config)
+
+    # Perform consistency checks
+    if not expt_config["data"].get("lev"):
         logging.debug("Level not specified in config, will use level 0 if multiple found")
-        config_d["data"]["lev"]=0
+        expt_config["data"]["lev"]=0
 
     logging.debug("Expanding references to other variables and Jinja templates")
-    config_d.dereference()
-    return config_d
+    expt_config.dereference()
+    return expt_config
 
 if __name__ == "__main__":
 
@@ -224,24 +245,24 @@ if __name__ == "__main__":
 
 
     # Load settings from config file
-    confg_d=setup_config(args.config)
+    expt_config=setup_config(args.config)
 
-    if os.path.isfile(confg_d["data"]["filename"]):
-        files = [confg_d["data"]["filename"]]
-    elif glob.glob(confg_d["data"]["filename"]):
-        files = sorted(glob.glob(confg_d["data"]["filename"]))
-    elif isinstance(confg_d["data"]["filename"], list):
-        files = confg_d["data"]["filename"]
+    if os.path.isfile(expt_config["data"]["filename"]):
+        files = [expt_config["data"]["filename"]]
+    elif glob.glob(expt_config["data"]["filename"]):
+        files = sorted(glob.glob(expt_config["data"]["filename"]))
+    elif isinstance(expt_config["data"]["filename"], list):
+        files = expt_config["data"]["filename"]
     else:
-        raise FileNotFoundError(f"Invalid filename(s) specified:\n{config_d['data']['filename']}")
+        raise FileNotFoundError(f"Invalid filename(s) specified:\n{expt_config['data']['filename']}")
 
-    if not confg_d["data"].get("gridfile"):
-        confg_d["data"]["gridfile"]=""
+    if not expt_config["data"].get("gridfile"):
+        expt_config["data"]["gridfile"]=""
 
     for f in files:
         # Open specified file and load dataset
-        dataset=load_dataset(f,confg_d["data"]["gridfile"])
+        dataset=load_dataset(f,expt_config["data"]["gridfile"])
 
 
         # Make the plots!
-        plotit(confg_d,dataset,f)
+        plotit(expt_config,dataset,f)
