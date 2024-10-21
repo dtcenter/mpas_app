@@ -73,6 +73,10 @@ plot:
   # lonrange:
   # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
   #
+  # periodic_bdy:
+  # For periodic domains (including global), the plot routines will ignore the periodic boundary by default.
+  # To plot all data, including boundaries, set this option, but it will slow down plotting substantially.
+  #
   # colormap:
   # Colormap for output from Matplotlib. Reference documentation for valid options:
   # https://matplotlib.org/stable/gallery/color/colormap_reference.html
@@ -110,6 +114,7 @@ plot:
   dpi: 300
   figheight: 4
   figwidth: 8
+  periodic_bdy: False
 
   # Settings for the plot's color bar
   colorbar:

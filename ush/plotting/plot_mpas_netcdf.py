@@ -91,7 +91,10 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 #            logging.info(f"Timer 1 {time.time()-start}")
             logging.debug(sliced)
 #            logging.info(f"Timer 2 {time.time()-start}")
-            pc=sliced.to_polycollection()
+            if config_d["plot"]["periodic_bdy"]:
+                pc=sliced.to_polycollection(periodic_elements='split')
+            else:
+                pc=sliced.to_polycollection()
 #            logging.info(f"Timer 3 {time.time()-start}")
 
             pc.set_antialiased(False)
