@@ -1,5 +1,5 @@
 data:
-  filename: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/hfip.init.nc
+  filename: ../../../expt_dirs/test_stoch_global/2023091500/forecast/history.*.nc
 #  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
   var:
     - qv

@@ -234,7 +234,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Script for plotting MPAS input and/or output in native NetCDF format"
     )
-    parser.add_argument('-c', '--config', type=str, default='plot_options.yaml',
+    parser.add_argument('-c', '--config', type=str, default='config_plot.yaml',
                         help='File used to specify plotting options')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Script will be run in debug mode with more verbose output')
