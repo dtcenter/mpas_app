@@ -76,39 +76,44 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                 logging.info(f"Variable {var} not face-centered, skipping")
                 continue
             logging.info(f"Plotting variable {var}")
-            sliced=uxds[var]
-            if "Time" in sliced.dims:
+            field=uxds[var]
+            # If multiple timesteps in a file, only plot the first for now
+            if "Time" in field.dims:
                 logging.info("Plotting first time step")
-                sliced=sliced.isel(Time=0)
-            lev=0
-            if "nVertLevels" in sliced.dims:
+                field=field.isel(Time=0)
+            # Parse multiple levels for 3d fields
+            # "sliced" is a dictionary of 2d slices of data we will plot. We use a dictionary
+            # instead of a list because the levels may not necessarily be contiguous or monotonic
+            sliced = {}
+            if "nVertLevels" in field.dims:
                 if config_d["data"]["lev"]:
-                    lev=config_d["data"]["lev"][0]
-                logging.info(f'Plotting vertical level {lev}')
-                sliced=sliced.isel(nVertLevels=lev)
-
-
-#            logging.info(f"Timer 1 {time.time()-start}")
-            logging.debug(sliced)
-#            logging.info(f"Timer 2 {time.time()-start}")
-            if config_d["plot"]["periodic_bdy"]:
-                pc=sliced.to_polycollection(periodic_elements='split')
+                    levs=config_d["data"]["lev"]
+                logging.info(f'Plotting vertical level(s) {levs}')
+                for lev in levs:
+                    sliced[lev]=field.isel(nVertLevels=lev)
             else:
-                pc=sliced.to_polycollection()
-#            logging.info(f"Timer 3 {time.time()-start}")
+                levs = [0]
+                sliced[0]=field
 
-            pc.set_antialiased(False)
+            for lev in levs:
+                logging.debug(f"For level {lev}, data slice to plot:\n{sliced[lev]}")
+                if config_d["plot"]["periodic_bdy"]:
+                    pc=sliced[lev].to_polycollection(periodic_elements='split')
+                else:
+                    pc=sliced[lev].to_polycollection()
 
-            pc.set_cmap(config_d["plot"]["colormap"])
+                pc.set_antialiased(False)
+
+                pc.set_cmap(config_d["plot"]["colormap"])
 
 #            logging.info(f"Timer 4 {time.time()-start}")
-            fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
+                fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
                                    dpi=config_d["plot"]["dpi"], constrained_layout=True)
 #            logging.info(f"Timer 5 {time.time()-start}")
 
 
-            ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
-            ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
+                ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
+                ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
 
             # add geographic features
         #    ax.add_feature(cfeature.COASTLINE)
@@ -116,35 +121,36 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 
             # Create a dict of substitutable patterns to make string substitutions easier
             # using the python string builtin method format_map()
-            patterns = {
-                "var": var,
-                "lev": lev,
-                "units": uxds[var].attrs["units"],
-                "varln": uxds[var].attrs["long_name"],
-                "filename": filename,
-                "fnme": fnme,
-                "date": uxds[var].coords['Time'].dt.strftime('%Y-%m-%d').values[0],
-                "time": uxds[var].coords['Time'].dt.strftime('%H:%M:%S').values[0]
-            }
-
-            coll = ax.add_collection(pc)
-
-            plottitle=config_d["plot"]["title"].format_map(patterns)
-            plt.title(plottitle, wrap=True)
-
-            # Handle colorbar
-            if config_d["plot"].get("colorbar"):
-                cb = config_d["plot"]["colorbar"]
-                cbar = plt.colorbar(coll,ax=ax,orientation=cb["orientation"])
-                if cb.get("label"):
-                    cbar.set_label(cb["label"].format_map(patterns))
-
-            outfile=config_d["plot"]["filename"].format_map(patterns)
-            # Make sure any subdirectories exist before we try to write the file
-            if os.path.dirname(outfile):
-                os.makedirs(os.path.dirname(outfile),exist_ok=True)
-            plt.savefig(outfile)
-            plt.close()
+                patterns = {
+                    "var": var,
+                    "lev": lev,
+                    "units": uxds[var].attrs["units"],
+                    "varln": uxds[var].attrs["long_name"],
+                    "filename": filename,
+                    "fnme": fnme,
+                    "date": uxds[var].coords['Time'].dt.strftime('%Y-%m-%d').values[0],
+                    "time": uxds[var].coords['Time'].dt.strftime('%H:%M:%S').values[0]
+                }
+    
+                coll = ax.add_collection(pc)
+    
+                plottitle=config_d["plot"]["title"].format_map(patterns)
+                plt.title(plottitle, wrap=True)
+    
+                # Handle colorbar
+                if config_d["plot"].get("colorbar"):
+                    cb = config_d["plot"]["colorbar"]
+                    cbar = plt.colorbar(coll,ax=ax,orientation=cb["orientation"])
+                    if cb.get("label"):
+                        cbar.set_label(cb["label"].format_map(patterns))
+    
+                outfile=config_d["plot"]["filename"].format_map(patterns)
+                # Make sure any subdirectories exist before we try to write the file
+                logging.debug(f"Saving plot {outfile}")
+                if os.path.dirname(outfile):
+                    os.makedirs(os.path.dirname(outfile),exist_ok=True)
+                plt.savefig(outfile)
+                plt.close()
 
 
     else:
