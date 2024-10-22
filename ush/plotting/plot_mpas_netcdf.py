@@ -10,6 +10,7 @@ import os
 import sys
 import time
 
+print("Importing uxarray; this may take a while...")
 import uxarray as ux
 import matplotlib.pyplot as plt
 
