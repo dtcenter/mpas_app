@@ -1,0 +1,129 @@
+# This is the file containing default values for all options you can specify for the plotting
+# script at runtime via YAML input.
+# Details about the specific sections (groups of variables for a particular purpose) and
+# individual variables can be found in the comments above each specific section/variable below.
+#
+# Some sections also include subsections with further settings related to a particular part of
+# the plotting script; these are differentiated by the indentation level.
+#
+# Some variables must be specified in the plot_options.yaml file (the default values are invalid);
+# these variables are labeled "(mandatory)".
+
+# This section is for variables related to the specific data you want to plot
+data:
+  #
+  # filename (mandatory):
+  # Full or relative path to filename containing MPAS data you wish to plot. Can be a single file,
+  # a glob-able regex pattern match (e.g. /path/to/nc/data/*.nc), or a list of files
+  # 
+  # gridfile:
+  # Some MPAS files (usually "diag" files) do not contain grid information; in these cases you
+  # must specify a "gridfile" that contains the grid information for the script to read
+  # NOTE: Since only one gridfile can be specified, it is not possible to mix-and-match gridded
+  #       and gridless files
+  #
+  # var:
+  # Variable name to plot. Can be a list of variable names, or the string "all" (default).
+  # 
+  # lev: Variable level to plot (for variables with multiple vertical levels). Can be a list of
+  # level numbers, or the string "all". Default is level 1.
+
+  # Note that for 'var' and 'lev', unless you are specifying "all", you must provide a list of
+  # values, even if there is just one item in that list. Some specific examples of how to specify
+  # various combinations of variable and levels are provided below.
+
+  # To plot all variables at the 9th vertical level, use the following settings:
+  #   var: all
+  #   lev:
+  #     - 9
+  # To plot the variables qv and rho at all levels, use the following settings:
+  #   var:
+  #     - qv
+  #     - rho
+  #   lev: all
+  # To plot the variable t2m at levels 1 through 6, use the following settings:
+  #   var:
+  #     - t2m
+  #   lev:
+  #     - 1
+  #     - 2
+  #     - 3
+  #     - 4
+  #     - 5
+  #     - 6
+
+  filename: ''
+  gridfile: ''
+  var: all
+  lev:
+    - 1
+
+# This section is for variables related to how the plot(s) is/are created.
+plot:
+  # filename:
+  # The filename of the output plot(s).
+  # 
+  # title:
+  # The title of the output plot(s) that will appear in the image above the plotted data. To create
+  # a plot with no title, set this to a blank string.
+  #
+  # latrange:
+  # Range of latitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  #
+  # lonrange:
+  # Range of longitudes to plot. Should be a 2-element list, with the first entry being less than the second
+  #
+  # periodic_bdy:
+  # For periodic domains (including global), the plot routines will ignore the periodic boundary by default.
+  # To plot all data, including boundaries, set this option, but it will slow down plotting substantially.
+  #
+  # colormap:
+  # Colormap for output from Matplotlib. Reference documentation for valid options:
+  # https://matplotlib.org/stable/gallery/color/colormap_reference.html
+  #
+  # dpi:
+  # Image dots per inch
+  #
+  # figheight:
+  # Image height in inches
+  # 
+  # figwidth:
+  # Image width in inches
+
+
+  # NOTE: for text fields such as filename, title, etc., some helpful variables are provided that
+  # you can reference in the text string that will be substituted in the final output:
+  # {var} = Variable name
+  # {lev} = Variable level
+  # {varln} = Variable "long name" (not recommended for filenames since these often contain spaces)
+  # {units} = Variable units
+  # {filename} = Name of file being read for plotted data
+  # {fnme} = Name of file (minus extension) being read for plotted data
+  # {date} = The date of plotted data, in %Y-%m-%d format
+  # {time} = The time of plotted data, in %H:%M:%S format
+
+  filename: '{var}_{lev}.png'
+  title: 'Plot of {varln}, level {lev} for MPAS forecast, {date} {time}'
+  latrange:
+    - -90
+    - 90
+  lonrange:
+    - -180
+    - 180
+  colormap: "viridis"
+  dpi: 300
+  figheight: 4
+  figwidth: 8
+  periodic_bdy: False
+
+  # Settings for the plot's color bar
+  colorbar:
+    # orientation:
+    # The orientation of the color bar. Valid values are "horizontal" or "vertical"
+    #
+    # label:
+    # Text to tabel colorbar; can use variables described at start of "plot:" section
+
+    orientation: vertical
+    label: 'Units: {units}'
+

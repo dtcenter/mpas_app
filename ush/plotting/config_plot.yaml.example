@@ -1,0 +1,33 @@
+data:
+  filename: ../../../expt_dirs/test_stoch_global/2023091500/forecast/history.*.nc
+#  gridfile: /scratch1/BMC/hmtb/kavulich/MPAS/plotting_scripts/debby/history.2024-08-08_12.00.00.nc
+  var:
+    - qv
+  lev:
+    - 9
+plot:
+  # {var} = Variable name
+  # {lev} = Variable level
+  # {varln} = Variable "long name" (not recommended for filenames since these often contain spaces)
+  # {units} = Variable units
+  # {filename} = Name of file being read for plotted data
+  # {fnme} = Name of file (minus extension) being read for plotted data
+  # {date} = The date of plotted data, in %Y-%m-%d format
+  # {time} = The time of plotted data, in %H:%M:%S format
+
+  filename: '{var}_{lev}.png'
+  title: 'Plot of {varln}, level {lev} for MPAS forecast, {date} {time}'
+  latrange:
+    - 10
+    - 45
+  lonrange:
+    - -110
+    - -30
+  colorbar:
+    orientation: vertical
+    label: 'Units: {units}'
+  # Colormap for output from Matplotlib. Reference: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+  colormap: "viridis"
+  dpi: 300
+  figheight: 4
+  figwidth: 8
