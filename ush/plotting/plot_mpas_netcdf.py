@@ -121,8 +121,17 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 
                 #Plot coastlines if requested
                 if config_d["plot"]["coastlines"]:
-                    ax.coastlines(**config_d["plot"]["coastlines"])
-
+                    ax.add_feature(cfeature.COASTLINE)
+                if config_d["plot"]["boundaries"]:
+                    if config_d["plot"]["boundaries"]["detail"]==0:
+                        name='admin_0_countries'
+                    elif config_d["plot"]["boundaries"]["detail"]==1:
+                        name='admin_1_states_provinces'
+                    elif config_d["plot"]["boundaries"]["detail"]==2:
+                        name='admin_1_states_provinces'
+                    else:
+                        raise ValueError(f'Invalid value for {config_d["plot"]["boundaries"]["detail"]=}')
+                    ax.add_feature(cfeature.NaturalEarthFeature(category='cultural', scale='50m', facecolor='none', linewidth=0.2, name=name))
 
             # Create a dict of substitutable patterns to make string substitutions easier
             # using the python string builtin method format_map()
