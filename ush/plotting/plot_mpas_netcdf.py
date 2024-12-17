@@ -13,6 +13,8 @@ import time
 print("Importing uxarray; this may take a while...")
 import uxarray as ux
 import matplotlib.pyplot as plt
+import cartopy.feature as cfeature
+import cartopy.crs as ccrs
 
 import uwtools.api.config as uwconfig
 
@@ -111,15 +113,16 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                 pc.set_clim(config_d["plot"]["vmin"],config_d["plot"]["vmax"])
 
                 fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
-                                   dpi=config_d["plot"]["dpi"], constrained_layout=True)
+                                   dpi=config_d["plot"]["dpi"], constrained_layout=True, subplot_kw=dict(projection=ccrs.PlateCarree()))
 
 
                 ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
                 ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
 
-            # add geographic features
-        #    ax.add_feature(cfeature.COASTLINE)
-        #    ax.add_feature(cfeature.BORDERS)
+                #Plot coastlines if requested
+                if config_d["plot"]["coastlines"]:
+                    ax.coastlines(**config_d["plot"]["coastlines"])
+
 
             # Create a dict of substitutable patterns to make string substitutions easier
             # using the python string builtin method format_map()
@@ -146,7 +149,6 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                     if cb.get("label"):
                         cbar.set_label(cb["label"].format_map(patterns))
 
-  
                 outfile=config_d["plot"]["filename"].format_map(patterns)
                 # Make sure any subdirectories exist before we try to write the file
                 logging.debug(f"Saving plot {outfile}")

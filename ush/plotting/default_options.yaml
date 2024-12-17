@@ -122,6 +122,15 @@ plot:
   vmin: null
   vmax: null
 
+  # Settings for plotting coastlines. To disable coastlines, specify "coastlines:" with no options
+  coastlines:
+    # Arguments are documented in the matplotlib documentation:
+    # https://scitools.org.uk/cartopy/docs/v0.15/matplotlib/geoaxes.html#cartopy.mpl.geoaxes.GeoAxes.coastlines
+
+    color: 'black'
+    resolution: '10m'
+    linewidth: 0.5
+
   # Settings for the plot's color bar
   colorbar:
     # orientation:
