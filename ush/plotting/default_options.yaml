@@ -89,7 +89,10 @@ plot:
   # 
   # figwidth:
   # Image width in inches
-
+  # 
+  # vmin, vmax:
+  # By default the color range will be scaled to the max/min values of the plotted data. To use a custom range,
+  # set vmin and/or vmax
 
   # NOTE: for text fields such as filename, title, etc., some helpful variables are provided that
   # you can reference in the text string that will be substituted in the final output:
@@ -115,6 +118,9 @@ plot:
   figheight: 4
   figwidth: 8
   periodic_bdy: False
+
+  vmin: null
+  vmax: null
 
   # Settings for the plot's color bar
   colorbar:
