@@ -121,7 +121,7 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
 
                 #Plot coastlines if requested
                 if config_d["plot"]["coastlines"]:
-                    ax.add_feature(cfeature.COASTLINE)
+                    ax.add_feature(cfeature.NaturalEarthFeature(category='physical', **config_d["plot"]["coastlines"], name='coastline'))
                 if config_d["plot"]["boundaries"]:
                     if config_d["plot"]["boundaries"]["detail"]==0:
                         name='admin_0_countries'

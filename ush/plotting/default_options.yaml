@@ -124,6 +124,8 @@ plot:
 
   # Settings for plotting political boundaries. To disable political boundaries, specify "boundaries:" with no options
   boundaries:
+    # Level of political boundaries to plot. Level 0 is national boundaries, Level 1 is sub-national boundaries (e.g.
+    # states, provinces, etc.), Level 2 is county boundaries (US only)
     detail: 0
 
   # Settings for plotting coastlines. To disable coastlines, specify "coastlines:" with no options
@@ -132,8 +134,9 @@ plot:
     # https://scitools.org.uk/cartopy/docs/v0.15/matplotlib/geoaxes.html#cartopy.mpl.geoaxes.GeoAxes.coastlines
 
     color: 'black'
-    scale: '10m'
+    facecolor: 'none'
     linewidth: 0.5
+    scale: '10m'
 
   # Settings for the plot's color bar
   colorbar:
