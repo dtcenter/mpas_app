@@ -132,13 +132,13 @@ plot:
 
   # Settings for plotting coastlines. To disable coastlines, specify "coastlines:" with no options
   coastlines:
-    # Arguments are documented in the matplotlib documentation:
-    # https://scitools.org.uk/cartopy/docs/v0.15/matplotlib/geoaxes.html#cartopy.mpl.geoaxes.GeoAxes.coastlines
-
+    # Scale is the resolution of the plotted boundary dataset. Options are 110m, 50m, and 10m.
+    scale: '10m'
+    # Most standard Matplotlib arguments for shapes will work here, but I haven't figured out good documentation on which.
+    # The ones listed here work, but likely a lot more customization can happen here.
     color: 'black'
     facecolor: 'none'
     linewidth: 0.5
-    scale: '10m'
 
   # Settings for the plot's color bar
   colorbar:
