@@ -125,8 +125,10 @@ plot:
   # Settings for plotting political boundaries. To disable political boundaries, specify "boundaries:" with no options
   boundaries:
     # Level of political boundaries to plot. Level 0 is national boundaries, Level 1 is sub-national boundaries (e.g.
-    # states, provinces, etc.), Level 2 is county boundaries (US only)
+    # states, provinces, etc.), Level 2 is county boundaries (US only); counties require 10m scale
     detail: 0
+    # Scale is the resolution of the plotted boundary dataset. Options are 110m, 50m, and 10m.
+    scale: 50m
 
   # Settings for plotting coastlines. To disable coastlines, specify "coastlines:" with no options
   coastlines:

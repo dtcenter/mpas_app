@@ -128,10 +128,12 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                     elif config_d["plot"]["boundaries"]["detail"]==1:
                         name='admin_1_states_provinces'
                     elif config_d["plot"]["boundaries"]["detail"]==2:
-                        name='admin_1_states_provinces'
+                        logging.debug("Counties only available at 10m resolution, overwriting scale=10m")
+                        config_d["plot"]["boundaries"]["scale"]='10m'
+                        name='admin_2_counties'
                     else:
                         raise ValueError(f'Invalid value for {config_d["plot"]["boundaries"]["detail"]=}')
-                    ax.add_feature(cfeature.NaturalEarthFeature(category='cultural', scale='50m', facecolor='none', linewidth=0.2, name=name))
+                    ax.add_feature(cfeature.NaturalEarthFeature(category='cultural', scale=config_d["plot"]["boundaries"]["scale"], facecolor='none', linewidth=0.2, name=name))
 
             # Create a dict of substitutable patterns to make string substitutions easier
             # using the python string builtin method format_map()
