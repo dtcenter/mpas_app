@@ -89,7 +89,10 @@ plot:
   # 
   # figwidth:
   # Image width in inches
-
+  # 
+  # vmin, vmax:
+  # By default the color range will be scaled to the max/min values of the plotted data. To use a custom range,
+  # set vmin and/or vmax
 
   # NOTE: for text fields such as filename, title, etc., some helpful variables are provided that
   # you can reference in the text string that will be substituted in the final output:
@@ -115,6 +118,27 @@ plot:
   figheight: 4
   figwidth: 8
   periodic_bdy: False
+
+  vmin: null
+  vmax: null
+
+  # Settings for plotting political boundaries. To disable political boundaries, specify "boundaries:" with no options
+  boundaries:
+    # Level of political boundaries to plot. Level 0 is national boundaries, Level 1 is sub-national boundaries (e.g.
+    # states, provinces, etc.), Level 2 is county boundaries (US only); counties require 10m scale
+    detail: 0
+    # Scale is the resolution of the plotted boundary dataset. Options are 110m, 50m, and 10m.
+    scale: 50m
+
+  # Settings for plotting coastlines. To disable coastlines, specify "coastlines:" with no options
+  coastlines:
+    # Scale is the resolution of the plotted boundary dataset. Options are 110m, 50m, and 10m.
+    scale: '10m'
+    # Most standard Matplotlib arguments for shapes will work here, but I haven't figured out good documentation on which.
+    # The ones listed here work, but likely a lot more customization can happen here.
+    color: 'black'
+    facecolor: 'none'
+    linewidth: 0.5
 
   # Settings for the plot's color bar
   colorbar:

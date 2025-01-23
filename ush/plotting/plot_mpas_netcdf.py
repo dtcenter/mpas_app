@@ -13,6 +13,8 @@ import time
 print("Importing uxarray; this may take a while...")
 import uxarray as ux
 import matplotlib.pyplot as plt
+import cartopy.feature as cfeature
+import cartopy.crs as ccrs
 
 import uwtools.api.config as uwconfig
 
@@ -99,6 +101,8 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
             for lev in levs:
                 logging.debug(f"For level {lev}, data slice to plot:\n{sliced[lev]}")
                 if config_d["plot"]["periodic_bdy"]:
+                    logging.info("Creating polycollection with periodic_bdy=True")
+                    logging.info("NOTE: This option can be very slow for large domains")
                     pc=sliced[lev].to_polycollection(periodic_elements='split')
                 else:
                     pc=sliced[lev].to_polycollection()
@@ -106,19 +110,30 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                 pc.set_antialiased(False)
 
                 pc.set_cmap(config_d["plot"]["colormap"])
+                pc.set_clim(config_d["plot"]["vmin"],config_d["plot"]["vmax"])
 
-#            logging.info(f"Timer 4 {time.time()-start}")
                 fig, ax = plt.subplots(1, 1, figsize=(config_d["plot"]["figwidth"], config_d["plot"]["figheight"]),
-                                   dpi=config_d["plot"]["dpi"], constrained_layout=True)
-#            logging.info(f"Timer 5 {time.time()-start}")
+                                   dpi=config_d["plot"]["dpi"], constrained_layout=True, subplot_kw=dict(projection=ccrs.PlateCarree()))
 
 
                 ax.set_xlim((config_d["plot"]["lonrange"][0],config_d["plot"]["lonrange"][1]))
                 ax.set_ylim((config_d["plot"]["latrange"][0],config_d["plot"]["latrange"][1]))
 
-            # add geographic features
-        #    ax.add_feature(cfeature.COASTLINE)
-        #    ax.add_feature(cfeature.BORDERS)
+                #Plot coastlines if requested
+                if config_d["plot"]["coastlines"]:
+                    ax.add_feature(cfeature.NaturalEarthFeature(category='physical', **config_d["plot"]["coastlines"], name='coastline'))
+                if config_d["plot"]["boundaries"]:
+                    if config_d["plot"]["boundaries"]["detail"]==0:
+                        name='admin_0_countries'
+                    elif config_d["plot"]["boundaries"]["detail"]==1:
+                        name='admin_1_states_provinces'
+                    elif config_d["plot"]["boundaries"]["detail"]==2:
+                        logging.debug("Counties only available at 10m resolution, overwriting scale=10m")
+                        config_d["plot"]["boundaries"]["scale"]='10m'
+                        name='admin_2_counties'
+                    else:
+                        raise ValueError(f'Invalid value for {config_d["plot"]["boundaries"]["detail"]=}')
+                    ax.add_feature(cfeature.NaturalEarthFeature(category='cultural', scale=config_d["plot"]["boundaries"]["scale"], facecolor='none', linewidth=0.2, name=name))
 
             # Create a dict of substitutable patterns to make string substitutions easier
             # using the python string builtin method format_map()
@@ -144,7 +159,7 @@ def plotit(config_d: dict,uxds: ux.UxDataset,filepath: str) -> None:
                     cbar = plt.colorbar(coll,ax=ax,orientation=cb["orientation"])
                     if cb.get("label"):
                         cbar.set_label(cb["label"].format_map(patterns))
-    
+
                 outfile=config_d["plot"]["filename"].format_map(patterns)
                 # Make sure any subdirectories exist before we try to write the file
                 logging.debug(f"Saving plot {outfile}")
@@ -272,7 +287,6 @@ if __name__ == "__main__":
     for f in files:
         # Open specified file and load dataset
         dataset=load_dataset(f,expt_config["data"]["gridfile"])
-
 
         # Make the plots!
         plotit(expt_config,dataset,f)
